@@ -1,6 +1,7 @@
 package assk.toothbrushgame;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -8,6 +9,8 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -36,9 +39,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
 
-    private long lastUpdate;
-    private float last_x, last_y, last_z;
-    private static final int SHAKE_THRESHOLD = 600;
+    private float last_speed = 0;
+    private final float MAX_SPEED = 20;
+    private float displayWidth;
+    private float displayHeight;
+    private float pos_smile;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,10 +55,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
 
         object = findViewById(R.id.object);
-//        object.setX
 
-
-
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        displayWidth = metrics.widthPixels;
+        displayHeight = metrics.heightPixels;
     }
 
     @Override
@@ -91,39 +97,33 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             float y = event.values[1];
             float z = event.values[2];
 
-            long curTime = System.currentTimeMillis();
+            // min a max y is from -10 to +10, 0 is the middle
 
-            if ((curTime - lastUpdate) > 100) {
-                long diffTime = (curTime - lastUpdate);
-                lastUpdate = curTime;
-
-//                float speed = Math.abs(x + y + z - last_x - last_y - last_z)/diffTime * 10000;
-                float speed = Math.abs(y - last_y) / diffTime * 10000;
-
-                if (speed > SHAKE_THRESHOLD) {
-
+            float actual_pos = object.getX();
+            float speed = last_speed + y;
+            if (Math.abs(speed) > MAX_SPEED) {
+                if (speed < 0) {
+                    speed = -MAX_SPEED;
+                } else {
+                    speed = MAX_SPEED;
                 }
-
-                last_x = x;
-                last_y = y;
-                last_z = z;
-
             }
+            pos_smile = actual_pos + speed;
+
+            last_speed = speed;
+
+            if (pos_smile <= 0) {
+                pos_smile = 0;
+            } else if ((pos_smile + object.getWidth()) >= displayWidth ) {
+                pos_smile = displayWidth - object.getWidth();
+            }
+            object.setX(pos_smile);
+
 
         }
 
     }
 
-    /**
-     * Called when the accuracy of the registered sensor has changed.
-     * <p/>
-     * <p>See the SENSOR_STATUS_* constants in
-     * {@link SensorManager SensorManager} for details.
-     *
-     * @param sensor
-     * @param accuracy The new accuracy of this sensor, one of
-     *                 {@code SensorManager.SENSOR_STATUS_*}
-     */
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
