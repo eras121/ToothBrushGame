@@ -10,16 +10,20 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Created by Tomas Kacer on 14. 4. 2016.
@@ -51,7 +55,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private float displayHeight;
     private float pos_smile;
     private List<FallingObject> fallingObjects;
-    private View fall_object;
     private Thread thread;
 
     @Override
@@ -69,43 +72,74 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         displayWidth = metrics.widthPixels;
         displayHeight = metrics.heightPixels;
-        int fallingObjectCount = (int) (displayWidth/30);
+        int fallingObjectCount = (int) (displayWidth/100);
+//        int fallingObjectCount = 1;
 
         fallingObjects = new ArrayList<FallingObject>(fallingObjectCount);
 
-        fall_object = (ImageView) findViewById(R.id.fall_object);
+//        fall_object = (ImageView) findViewById(R.id.fall_object);
 
         //create views dynamically
 
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
+        int i = 0;
+        while (i < fallingObjectCount) {
+            ImageView imageView = new ImageView(this);
+            imageView.setX(i*20);
+            imageView.setY(i*20);
+            switch (i%5) {
+                case 0: imageView.setImageResource(R.drawable.dirt1);
+                        break;
+                case 1: imageView.setImageResource(R.drawable.dirt2);
+                    break;
+                case 2: imageView.setImageResource(R.drawable.dirt3);
+                    break;
+                case 3: imageView.setImageResource(R.drawable.dirt4);
+                    break;
+                case 4: imageView.setImageResource(R.drawable.dirt5);
+                    break;
+                default: imageView.setImageResource(R.drawable.dirt1);
+            }
 
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (fall_object.getY() < displayHeight - fall_object.getHeight()) {
-                    fall_object.setY(fall_object.getY()+2);
-                    System.out.println(fall_object.getY());
-                    try {
-                        thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }});
-        thread.start();
+            imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            imageView.setId(i);
+            relativeLayout.addView(imageView);
+            relativeLayout.invalidate();
+            i++;
+        }
+
+
+
+
+
+//        thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (fall_object.getY() < displayHeight - fall_object.getHeight()) {
+//                    fall_object.setY(fall_object.getY()+2);
+//                    System.out.println(fall_object.getY());
+//                    try {
+//                        thread.sleep(50);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }});
+//        thread.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
-        thread.interrupt();
+//        thread.interrupt();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-        thread.start();
+//        thread.start();
     }
 
     /**

@@ -4,144 +4,150 @@
               android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              tools:context=".GameActivity">
+              tools:context=".GameActivity"
+    >
 
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:id="@+id/fall_object"
-        android:src="@drawable/dirt1"
+    <RelativeLayout
+        android:id="@+id/falling_pane"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        >
 
-        android:layout_marginTop="24dp" />
+        <RelativeLayout android:layout_width="240dp"
+                        android:layout_height="240dp"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_centerInParent="true"
+                        android:layout_marginBottom="15dp"
+                        android:id="@+id/object">
 
-    <RelativeLayout android:layout_width="240dp"
-                    android:layout_height="240dp"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_centerInParent="true"
-                    android:id="@+id/object">
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/tooth"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="0dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="0dp"
+                android:src="@drawable/tooth" />
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/tooth"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="0dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="0dp"
-            android:src="@drawable/tooth" />
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/emotion"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/emotion_sad" />
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/emotion"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/emotion_sad" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:id="@+id/dirt_lt"
+                android:layout_marginStart="23dp"
+                android:src="@drawable/dirt1"
+                android:layout_marginLeft="24dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="24dp"
+                android:layout_alignParentLeft="true"/>
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:id="@+id/dirt_lt"
-            android:layout_marginStart="23dp"
-            android:src="@drawable/dirt1"
-            android:layout_marginLeft="24dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="24dp"
-            android:layout_alignParentLeft="true"/>
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:id="@+id/dirt_ct"
+                android:layout_below="@+id/dirt_lt"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/dirt2" />
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:id="@+id/dirt_ct"
-            android:layout_below="@+id/dirt_lt"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/dirt2" />
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:id="@+id/dirt_rt"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/dirt5"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="12dp" />
 
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:id="@+id/dirt_rt"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/dirt5"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="12dp" />
+            <ImageView
+                android:layout_width="52dp"
+                android:layout_height="48dp"
+                android:id="@+id/dirt_lb"
+                android:layout_alignParentBottom="true"
+                android:layout_alignRight="@+id/dirt_lt"
+                android:src="@drawable/dirt4"
+                android:layout_marginBottom="12dp"
+                android:layout_marginLeft="8dp" />
 
-        <ImageView
-            android:layout_width="52dp"
-            android:layout_height="48dp"
-            android:id="@+id/dirt_lb"
-            android:layout_alignParentBottom="true"
-            android:layout_alignRight="@+id/dirt_lt"
-            android:src="@drawable/dirt4"
-            android:layout_marginBottom="12dp"
-            android:layout_marginLeft="8dp" />
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="32dp"
+                android:id="@+id/dirt_cb"
+                android:src="@drawable/dirt3"
+                android:layout_alignBottom="@+id/dirt_lb"
+                android:layout_alignLeft="@+id/dirt_ct" />
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="32dp"
-            android:id="@+id/dirt_cb"
-            android:src="@drawable/dirt3"
-            android:layout_alignBottom="@+id/dirt_lb"
-            android:layout_alignLeft="@+id/dirt_ct" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/foam_lb"
+                android:src="@drawable/foam"
+                android:layout_alignTop="@+id/dirt_lb"
+                android:layout_toLeftOf="@+id/dirt_cb"
+                android:layout_marginLeft="4dp"
+                android:layout_alignRight="@+id/dirt_lb" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/foam_lb"
-            android:src="@drawable/foam"
-            android:layout_alignTop="@+id/dirt_lb"
-            android:layout_toLeftOf="@+id/dirt_cb"
-            android:layout_marginLeft="4dp"
-            android:layout_alignRight="@+id/dirt_lb" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/foam_cb"
+                android:src="@drawable/foam"
+                android:layout_alignEnd="@+id/dirt_cb"
+                android:layout_marginBottom="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout_toRightOf="@+id/dirt_ct"
+                android:layout_alignTop="@+id/dirt_cb"
+                android:layout_alignStart="@+id/dirt_cb"
+                android:layout_alignLeft="@+id/dirt_cb"
+                android:layout_alignRight="@+id/dirt_cb"
+                android:layout_alignBottom="@+id/dirt_cb" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/foam_cb"
-            android:src="@drawable/foam"
-            android:layout_alignEnd="@+id/dirt_cb"
-            android:layout_marginBottom="8dp"
-            android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/dirt_ct"
-            android:layout_alignTop="@+id/dirt_cb"
-            android:layout_alignStart="@+id/dirt_cb"
-            android:layout_alignLeft="@+id/dirt_cb"
-            android:layout_alignRight="@+id/dirt_cb"
-            android:layout_alignBottom="@+id/dirt_cb" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/foam_ct"
+                android:src="@drawable/foam"
+                android:layout_alignTop="@+id/dirt_ct"
+                android:layout_alignBottom="@+id/dirt_ct"
+                android:layout_alignLeft="@+id/dirt_ct"
+                android:layout_alignRight="@+id/dirt_ct" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/foam_ct"
-            android:src="@drawable/foam"
-            android:layout_alignTop="@+id/dirt_ct"
-            android:layout_alignBottom="@+id/dirt_ct"
-            android:layout_alignLeft="@+id/dirt_ct"
-            android:layout_alignRight="@+id/dirt_ct" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/foam_lt"
+                android:src="@drawable/foam"
+                android:layout_alignBottom="@+id/dirt_lt"
+                android:layout_alignLeft="@+id/dirt_lt"
+                android:layout_alignTop="@+id/dirt_lt"
+                android:layout_alignRight="@+id/foam_lb" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/foam_lt"
-            android:src="@drawable/foam"
-            android:layout_alignBottom="@+id/dirt_lt"
-            android:layout_alignLeft="@+id/dirt_lt"
-            android:layout_alignTop="@+id/dirt_lt"
-            android:layout_alignRight="@+id/foam_lb" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/foam_rt"
+                android:layout_alignTop="@+id/dirt_rt"
+                android:layout_alignRight="@+id/dirt_rt"
+                android:src="@drawable/foam"
+                android:layout_alignBottom="@+id/dirt_lt"
+                android:layout_alignLeft="@+id/dirt_rt" />
+        </RelativeLayout>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/foam_rt"
-            android:layout_alignTop="@+id/dirt_rt"
-            android:layout_alignRight="@+id/dirt_rt"
-            android:src="@drawable/foam"
-            android:layout_alignBottom="@+id/dirt_lt"
-            android:layout_alignLeft="@+id/dirt_rt" />
+
+
+
     </RelativeLayout>
 
 </RelativeLayout>
