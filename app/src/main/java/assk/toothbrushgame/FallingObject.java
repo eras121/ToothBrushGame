@@ -1,38 +1,27 @@
 package assk.toothbrushgame;
 
+import android.content.Context;
+import android.widget.ImageView;
+
 /**
  * Created by Tomas Kacer on 15. 4. 2016.
  */
-public class FallingObject implements Cloneable {
+public class FallingObject extends ImageView implements Cloneable {
 
-    private float x;
-    private float y;
     private float speed;
-    private int id;
     private boolean is_clean;
+    private boolean is_existing;
 
-    public int getId() {
-        return id;
+    public FallingObject(Context context) {
+        super(context);
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public boolean is_existing() {
+        return is_existing;
     }
 
-    public float getX() {
-        return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
+    public void setIs_existing(boolean is_existing) {
+        this.is_existing = is_existing;
     }
 
     public float getSpeed() {

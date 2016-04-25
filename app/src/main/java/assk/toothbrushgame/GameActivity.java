@@ -56,6 +56,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private float pos_smile;
     private List<FallingObject> fallingObjects;
     private Thread thread;
+    RelativeLayout relativeLayout;
+    int fallingObjectCount;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,7 +74,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         displayWidth = metrics.widthPixels;
         displayHeight = metrics.heightPixels;
-        int fallingObjectCount = (int) (displayWidth/100);
+        fallingObjectCount = (int) (displayWidth/100);
 //        int fallingObjectCount = 1;
 
         fallingObjects = new ArrayList<FallingObject>(fallingObjectCount);
@@ -81,65 +83,69 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         //create views dynamically
 
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
-        int i = 0;
-        while (i < fallingObjectCount) {
-            ImageView imageView = new ImageView(this);
-            imageView.setX(i*20);
-            imageView.setY(i*20);
-            switch (i%5) {
-                case 0: imageView.setImageResource(R.drawable.dirt1);
-                        break;
-                case 1: imageView.setImageResource(R.drawable.dirt2);
-                    break;
-                case 2: imageView.setImageResource(R.drawable.dirt3);
-                    break;
-                case 3: imageView.setImageResource(R.drawable.dirt4);
-                    break;
-                case 4: imageView.setImageResource(R.drawable.dirt5);
-                    break;
-                default: imageView.setImageResource(R.drawable.dirt1);
-            }
+        relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
 
-            imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            imageView.setId(i);
-            relativeLayout.addView(imageView);
-            relativeLayout.invalidate();
-            i++;
-        }
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+            int i = 0;
+            while (i < fallingObjectCount) {
+                if (!fallingObjects.get(i).is_existing()) {
+                    FallingObject imageView = new FallingObject(getBaseContext());
+                    fallingObjects.add(i, imageView);
+                    imageView.setX((float) (Math.random() * i));
+                    imageView.setY(10);
+                    imageView.setSpeed((float) (Math.random()*10));
+                    switch (i % 5) {
+                        case 0:
+                            imageView.setImageResource(R.drawable.dirt1);
+                            break;
+                        case 1:
+                            imageView.setImageResource(R.drawable.dirt2);
+                            break;
+                        case 2:
+                            imageView.setImageResource(R.drawable.dirt3);
+                            break;
+                        case 3:
+                            imageView.setImageResource(R.drawable.dirt4);
+                            break;
+                        case 4:
+                            imageView.setImageResource(R.drawable.dirt5);
+                            break;
+                        default:
+                            imageView.setImageResource(R.drawable.dirt1);
+                    }
 
-
-
-
-
-//        thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (fall_object.getY() < displayHeight - fall_object.getHeight()) {
-//                    fall_object.setY(fall_object.getY()+2);
-//                    System.out.println(fall_object.getY());
-//                    try {
-//                        thread.sleep(50);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }});
-//        thread.start();
+                    imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    imageView.setId(i);
+                    relativeLayout.addView(imageView);
+                } else {
+                    FallingObject imageView = fallingObjects.get(i);
+                    object_fall(imageView);
+                }
+                relativeLayout.invalidate();
+                i++;
+                    try {
+                        thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }});
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
-//        thread.interrupt();
+        thread.interrupt();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-//        thread.start();
+        thread.start();
     }
 
     /**
