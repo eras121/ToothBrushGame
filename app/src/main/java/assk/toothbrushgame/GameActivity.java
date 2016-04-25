@@ -55,7 +55,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private float displayHeight;
     private float pos_smile;
     private List<FallingObject> fallingObjects;
-    private Thread thread;
     RelativeLayout relativeLayout;
     int fallingObjectCount;
 
@@ -75,77 +74,28 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         displayWidth = metrics.widthPixels;
         displayHeight = metrics.heightPixels;
         fallingObjectCount = (int) (displayWidth/100);
-//        int fallingObjectCount = 1;
-
-        fallingObjects = new ArrayList<FallingObject>(fallingObjectCount);
-
-//        fall_object = (ImageView) findViewById(R.id.fall_object);
-
-        //create views dynamically
-
         relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
 
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-            int i = 0;
-            while (i < fallingObjectCount) {
-                if (!fallingObjects.get(i).is_existing()) {
-                    FallingObject imageView = new FallingObject(getBaseContext());
-                    fallingObjects.add(i, imageView);
-                    imageView.setX((float) (Math.random() * i));
-                    imageView.setY(10);
-                    imageView.setSpeed((float) (Math.random()*10));
-                    switch (i % 5) {
-                        case 0:
-                            imageView.setImageResource(R.drawable.dirt1);
-                            break;
-                        case 1:
-                            imageView.setImageResource(R.drawable.dirt2);
-                            break;
-                        case 2:
-                            imageView.setImageResource(R.drawable.dirt3);
-                            break;
-                        case 3:
-                            imageView.setImageResource(R.drawable.dirt4);
-                            break;
-                        case 4:
-                            imageView.setImageResource(R.drawable.dirt5);
-                            break;
-                        default:
-                            imageView.setImageResource(R.drawable.dirt1);
-                    }
+        fallingObjects = new ArrayList<>(fallingObjectCount);
+        relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
 
-                    imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    imageView.setId(i);
-                    relativeLayout.addView(imageView);
-                } else {
-                    FallingObject imageView = fallingObjects.get(i);
-                    object_fall(imageView);
-                }
-                relativeLayout.invalidate();
-                i++;
-                    try {
-                        thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }});
+        fillFallingObjects();
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
-        thread.interrupt();
+//        thread.interrupt();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-        thread.start();
+//        thread.start();
+        object_fall();
     }
 
     /**
@@ -192,7 +142,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 pos_smile = displayWidth - object.getWidth();
             }
             object.setX(pos_smile);
+
+            object_fall();
+
         }
+
 
     }
 
@@ -201,17 +155,76 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     // creating objects and their behaviour
-    private void falling_objects() {
 
+    private void fillFallingObjects() {
+        if (fallingObjects.isEmpty()) {
+            for (int j = 0; j < fallingObjectCount; j++) {
+                FallingObject imageView = new FallingObject(this);
+                fallingObjects.add(j, imageView);
+                relativeLayout.addView(imageView);
+                imageView.setId(j);
+                imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                relativeLayout.invalidate();
+                createFallingObject(imageView);
+
+                imageView.setVisibility(View.INVISIBLE);
+                imageView.setIs_clean(false);
+                imageView.setIs_existing(false);
+            }
+        }
     }
 
+    private FallingObject createFallingObject(FallingObject imageView) {
+        imageView.setX((float) (Math.random() * displayWidth));
+        imageView.setY(0);
+        imageView.setSpeed((float) (Math.random()*3));
+        switch (imageView.getId() % 5) {
+            case 0:
+                imageView.setImageResource(R.drawable.dirt1);
+                break;
+            case 1:
+                imageView.setImageResource(R.drawable.dirt2);
+                break;
+            case 2:
+                imageView.setImageResource(R.drawable.dirt3);
+                break;
+            case 3:
+                imageView.setImageResource(R.drawable.dirt4);
+                break;
+            case 4:
+                imageView.setImageResource(R.drawable.dirt5);
+                break;
+            default:
+                imageView.setImageResource(R.drawable.dirt1);
+        }
+        return imageView;
+    }
 
-    private void object_fall(FallingObject falling_object) {
+    private void object_fall() {
         // ak sa prida aj x, daju sa pocitat vektory, teda aj objekty budu padat bokom
-        float y = falling_object.getY();
-        float speed = falling_object.getSpeed();
-        y = y + speed;
-        falling_object.setY(y);
+            for (FallingObject fallingObject : fallingObjects) {
+                if (fallingObject.is_existing()) {
+                    float y = fallingObject.getY();
+                    float speed = fallingObject.getSpeed();
+                    y = y + speed;
+                    fallingObject.setY(y);
+
+                    //TODO : naraz s emotikonou alebo y == displayHeight
+
+
+
+                } else {
+                    boolean willBeExisting = (Math.round(Math.random()) == 0) ? false : true;
+                    if (willBeExisting) {
+                        createFallingObject(fallingObject);
+                        fallingObject.setIs_existing(true);
+                        fallingObject.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+//        }
+
     }
 
 
