@@ -1,25 +1,18 @@
 package assk.toothbrushgame;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,21 +23,23 @@ import java.util.List;
  */
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
 
+    private static final int SADNESS_HAPPY = 0;
+    private static final int SADNESS_OK = 1;
+    private static final int SADNESS_SAD = 2;
+
+
     private ImageView dirtLT;
     private ImageView dirtCT;
     private ImageView dirtRT;
     private ImageView dirtLB;
     private ImageView dirtCB;
 
-    private ImageView foamLT;
-    private ImageView foamCT;
-    private ImageView foamRT;
-    private ImageView foamLB;
-    private ImageView foamCB;
-
     private ImageView emotion;
+    private static int emotion_saddnes;
 
     private View object;
+
+    private TextView timeView;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -57,27 +52,43 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private List<FallingObject> fallingObjects;
     RelativeLayout relativeLayout;
     int fallingObjectCount;
+    int start_time;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        start_time = (int) (System.currentTimeMillis()/1000);
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
 
+        dirtLT = (ImageView) findViewById(R.id.dirt_lt);
+        dirtCT = (ImageView) findViewById(R.id.dirt_ct);
+        dirtRT = (ImageView) findViewById(R.id.dirt_rt);
+        dirtLB = (ImageView) findViewById(R.id.dirt_lb);
+        dirtCB = (ImageView) findViewById(R.id.dirt_cb);
+
         object = findViewById(R.id.object);
+
+        emotion = (ImageView) findViewById(R.id.emotion);
+        emotion_saddnes = SADNESS_HAPPY;
+        setSadness(emotion_saddnes);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         displayWidth = metrics.widthPixels;
         displayHeight = metrics.heightPixels;
-        fallingObjectCount = (int) (displayWidth/100);
+//        fallingObjectCount = (int) (displayWidth/200);
+        fallingObjectCount = 1;
         relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
 
         fallingObjects = new ArrayList<>(fallingObjectCount);
         relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
+
+        timeView = (TextView) findViewById(R.id.score_textView);
 
         fillFallingObjects();
 
@@ -87,14 +98,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
-//        thread.interrupt();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-//        thread.start();
         object_fall();
     }
 
@@ -145,6 +154,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
             object_fall();
 
+            int time = (int) (System.currentTimeMillis()/1000 - start_time);
+
+            timeView.setText(Integer.toString(time));
+
         }
 
 
@@ -152,6 +165,40 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    private void setSadness(int sadness) {
+        switch (sadness) {
+            case SADNESS_HAPPY:
+                emotion.setImageDrawable(getResources().getDrawable(R.drawable.emotion_happy));
+
+                dirtLT.setVisibility(View.INVISIBLE);
+                dirtCT.setVisibility(View.INVISIBLE);
+                dirtRT.setVisibility(View.INVISIBLE);
+                dirtLB.setVisibility(View.INVISIBLE);
+                dirtCB.setVisibility(View.INVISIBLE);
+                break;
+            case SADNESS_OK:
+                emotion.setImageDrawable(getResources().getDrawable(R.drawable.emotion_excited));
+
+                dirtLT.setVisibility(View.INVISIBLE);
+                dirtCT.setVisibility(View.INVISIBLE);
+                dirtRT.setVisibility(View.VISIBLE);
+                dirtLB.setVisibility(View.VISIBLE);
+                dirtCB.setVisibility(View.VISIBLE);
+                break;
+            case SADNESS_SAD:
+                emotion.setImageDrawable(getResources().getDrawable(R.drawable.emotion_sad));
+
+                dirtLT.setVisibility(View.VISIBLE);
+                dirtCT.setVisibility(View.VISIBLE);
+                dirtRT.setVisibility(View.VISIBLE);
+                dirtLB.setVisibility(View.VISIBLE);
+                dirtCB.setVisibility(View.VISIBLE);
+                break;
+        }
+
+
     }
 
     // creating objects and their behaviour
@@ -163,7 +210,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 fallingObjects.add(j, imageView);
                 relativeLayout.addView(imageView);
                 imageView.setId(j);
-                imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                imageView.setLayoutParams(new RelativeLayout.LayoutParams(48, 48));
                 relativeLayout.invalidate();
                 createFallingObject(imageView);
 
@@ -175,27 +223,32 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private FallingObject createFallingObject(FallingObject imageView) {
-        imageView.setX((float) (Math.random() * displayWidth));
-        imageView.setY(0);
-        imageView.setSpeed((float) (Math.random()*3));
-        switch (imageView.getId() % 5) {
-            case 0:
-                imageView.setImageResource(R.drawable.dirt1);
-                break;
-            case 1:
-                imageView.setImageResource(R.drawable.dirt2);
-                break;
-            case 2:
-                imageView.setImageResource(R.drawable.dirt3);
-                break;
-            case 3:
-                imageView.setImageResource(R.drawable.dirt4);
-                break;
-            case 4:
-                imageView.setImageResource(R.drawable.dirt5);
-                break;
-            default:
-                imageView.setImageResource(R.drawable.dirt1);
+//        boolean willBeExisting = (Math.random() < 0.5) ? false : true;
+        boolean willBeExisting = true;
+        if (willBeExisting) {
+            imageView.setX((float) (Math.random() * displayWidth));
+            imageView.setY(0);
+            imageView.setSpeed((float) (Math.random() * 3));
+            switch (imageView.getId() % 5) {
+                case 0:
+                    imageView.setImageResource(R.drawable.dirt1);
+                    break;
+                case 1:
+                    imageView.setImageResource(R.drawable.dirt2);
+                    break;
+                case 2:
+                    imageView.setImageResource(R.drawable.dirt3);
+                    break;
+                case 3:
+                    imageView.setImageResource(R.drawable.dirt4);
+                    break;
+                case 4:
+                    imageView.setImageResource(R.drawable.dirt5);
+                    break;
+                default:
+                    imageView.setImageResource(R.drawable.dirt1);
+                    break;
+            }
         }
         return imageView;
     }
@@ -209,21 +262,38 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                     y = y + speed;
                     fallingObject.setY(y);
 
-                    //TODO : naraz s emotikonou alebo y == displayHeight
+                    //TODO : y == displayHeight
+                    float x_emotikon = object.getX();
+                    float width_emotikon = object.getWidth();
+
+                    float height_emotikon = displayHeight - (object.getTop() + 15); //15 is the bottom space
+
+                    float yBottom = y + fallingObject.getBottom();
+                    System.out.println(yBottom);
+                    if (yBottom >= height_emotikon && yBottom < displayHeight) {
+                        float diff_x = fallingObject.getX() - x_emotikon;
+                        if (diff_x < width_emotikon && diff_x > 0) {
+                            emotion_saddnes++;
+                            setSadness(emotion_saddnes);
+                            fallingObject.setIs_existing(false);
+                            fallingObject.setVisibility(View.INVISIBLE);
+                        }
 
 
+                    } else if (y >= displayHeight) {
+                        fallingObject.setIs_existing(false);
+                        fallingObject.setVisibility(View.INVISIBLE);
+                    }
 
                 } else {
-                    boolean willBeExisting = (Math.round(Math.random()) == 0) ? false : true;
-                    if (willBeExisting) {
+                    boolean willBeExisting = (Math.random() < 0.8) ? false : true;
+//                    if (willBeExisting) {
                         createFallingObject(fallingObject);
                         fallingObject.setIs_existing(true);
                         fallingObject.setVisibility(View.VISIBLE);
-                    }
+//                    }
                 }
             }
-
-//        }
 
     }
 
