@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">ToothBrushGame</string>
+    <string name="vo_co_go">Takže o čo tu ide?
+        Otáčaním zariadenia ovládaš zúbok. Tvojou úlohou je vyhnúť sa padajúcim špinkám a tým pádom udržať zúbok čistý.
+    Zúbok nie je žiadna mäkota, ruky si vie ušpiniť. Ak sa však zašpiní 3x, ostane smutný naveky.</string>
 </resources>

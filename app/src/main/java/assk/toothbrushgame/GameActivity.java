@@ -1,15 +1,20 @@
 package assk.toothbrushgame;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -26,7 +31,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private static final int SADNESS_HAPPY = 0;
     private static final int SADNESS_OK = 1;
     private static final int SADNESS_SAD = 2;
-
+    private static final int SADNESS_GAMEOVER = 3;
 
     private ImageView dirtLT;
     private ImageView dirtCT;
@@ -40,6 +45,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private View object;
 
     private TextView timeView;
+    private TextView startTimeView;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -50,16 +56,20 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private float displayHeight;
     private float pos_smile;
     private List<FallingObject> fallingObjects;
-    RelativeLayout relativeLayout;
-    int fallingObjectCount;
-    int start_time;
+    private RelativeLayout relativeLayout;
+    private int fallingObjectCount;
+    private int start_time;
+
+    private boolean game_on;
+    private boolean game_over;
+    private int waitingTime;
+    private int scorePoints;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
-        start_time = (int) (System.currentTimeMillis()/1000);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -72,6 +82,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         dirtCB = (ImageView) findViewById(R.id.dirt_cb);
 
         object = findViewById(R.id.object);
+        startTimeView = (TextView) findViewById(R.id.start_textView);
 
         emotion = (ImageView) findViewById(R.id.emotion);
         emotion_saddnes = SADNESS_HAPPY;
@@ -81,17 +92,21 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         displayWidth = metrics.widthPixels;
         displayHeight = metrics.heightPixels;
-//        fallingObjectCount = (int) (displayWidth/200);
-        fallingObjectCount = 1;
+        fallingObjectCount = (int) (displayWidth/150);
         relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
 
         fallingObjects = new ArrayList<>(fallingObjectCount);
         relativeLayout = (RelativeLayout) findViewById(R.id.falling_pane);
 
         timeView = (TextView) findViewById(R.id.score_textView);
+        game_on = false;
+        game_over = false;
+        scorePoints = 0;
 
-        fillFallingObjects();
+    }
 
+    @Override
+    public void onBackPressed() {
     }
 
     @Override
@@ -104,7 +119,55 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        fillFallingObjects();
         object_fall();
+
+
+        // start sequence 3...2...1...START
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                waitingTime = 3;
+                while (waitingTime != 0) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startTimeView.setText(Integer.toString(waitingTime));
+                            waitingTime--;
+                        }
+                    });
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (waitingTime == 0) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startTimeView.setText("START");
+                        }
+                    });
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        startTimeView.setVisibility(View.INVISIBLE);
+                    }
+                });
+
+                game_on = true;
+                start_time = (int) (System.currentTimeMillis()/1000);
+            }
+        }).start();
     }
 
     /**
@@ -123,40 +186,46 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Sensor mySensor = event.sensor;
 
-        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
 
-            // min a max y is from -10 to +10, 0 is the middle
+        if (game_on) {
 
-            float actual_pos = object.getX();
-            float speed = last_speed + y;
-            if (Math.abs(speed) > MAX_SPEED) {
-                if (speed < 0) {
-                    speed = -MAX_SPEED;
-                } else {
-                    speed = MAX_SPEED;
+            Sensor mySensor = event.sensor;
+
+            if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
+
+                // min a max y is from -10 to +10, 0 is the middle
+
+                float actual_pos = object.getX();
+                float speed = last_speed + y;
+                if (Math.abs(speed) > MAX_SPEED) {
+                    if (speed < 0) {
+                        speed = -MAX_SPEED;
+                    } else {
+                        speed = MAX_SPEED;
+                    }
                 }
+                pos_smile = actual_pos + speed;
+
+                last_speed = speed;
+
+                if (pos_smile <= 0) {
+                    pos_smile = 0;
+                } else if ((pos_smile + object.getWidth()) >= displayWidth) {
+                    pos_smile = displayWidth - object.getWidth();
+                }
+                object.setX(pos_smile);
+
+                if (!game_over) {
+                    object_fall();
+                    scorePoints = (int) (System.currentTimeMillis() / 1000 - start_time);
+                }
+                timeView.setText(Integer.toString(scorePoints));
+
             }
-            pos_smile = actual_pos + speed;
-
-            last_speed = speed;
-
-            if (pos_smile <= 0) {
-                pos_smile = 0;
-            } else if ((pos_smile + object.getWidth()) >= displayWidth ) {
-                pos_smile = displayWidth - object.getWidth();
-            }
-            object.setX(pos_smile);
-
-            object_fall();
-
-            int time = (int) (System.currentTimeMillis()/1000 - start_time);
-
-            timeView.setText(Integer.toString(time));
 
         }
 
@@ -188,6 +257,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 dirtCB.setVisibility(View.VISIBLE);
                 break;
             case SADNESS_SAD:
+
                 emotion.setImageDrawable(getResources().getDrawable(R.drawable.emotion_sad));
 
                 dirtLT.setVisibility(View.VISIBLE);
@@ -195,6 +265,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 dirtRT.setVisibility(View.VISIBLE);
                 dirtLB.setVisibility(View.VISIBLE);
                 dirtCB.setVisibility(View.VISIBLE);
+                break;
+            case SADNESS_GAMEOVER:
+                game_over = true;
+                saveToHighScore();
                 break;
         }
 
@@ -254,7 +328,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void object_fall() {
-        // ak sa prida aj x, daju sa pocitat vektory, teda aj objekty budu padat bokom
+
+        if (!game_over) {
+
+            // ak sa prida aj x, daju sa pocitat vektory, teda aj objekty budu padat bokom
             for (FallingObject fallingObject : fallingObjects) {
                 if (fallingObject.is_existing()) {
                     float y = fallingObject.getY();
@@ -262,14 +339,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                     y = y + speed;
                     fallingObject.setY(y);
 
-                    //TODO : y == displayHeight
                     float x_emotikon = object.getX();
                     float width_emotikon = object.getWidth();
 
                     float height_emotikon = displayHeight - (object.getTop() + 15); //15 is the bottom space
 
                     float yBottom = y + fallingObject.getBottom();
-                    System.out.println(yBottom);
                     if (yBottom >= height_emotikon && yBottom < displayHeight) {
                         float diff_x = fallingObject.getX() - x_emotikon;
                         if (diff_x < width_emotikon && diff_x > 0) {
@@ -288,12 +363,44 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 } else {
                     boolean willBeExisting = (Math.random() < 0.8) ? false : true;
 //                    if (willBeExisting) {
-                        createFallingObject(fallingObject);
-                        fallingObject.setIs_existing(true);
-                        fallingObject.setVisibility(View.VISIBLE);
+                    createFallingObject(fallingObject);
+                    fallingObject.setIs_existing(true);
+                    fallingObject.setVisibility(View.VISIBLE);
 //                    }
                 }
             }
+        }
+    }
+
+    private void saveToHighScore() {
+        Score lastScore = ScoreTab.get(getApplicationContext()).getScore(4);
+        if ((lastScore == null) || (lastScore.getScorePoints() < scorePoints)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Skóre");
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Score score = new Score(input.getText().toString(), scorePoints);
+                    ScoreTab.get(getApplicationContext()).insertScore(score);
+                    Intent intent = new Intent(getApplicationContext(), HighScoreActivity.class);
+                    startActivity(intent);
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
+
+        }
+
+
 
     }
 

@@ -10,12 +10,25 @@
         <activity android:name="assk.toothbrushgame.GameActivity"
                   android:screenOrientation="landscape"
                   android:label="@string/app_name">
+        </activity>
+        <activity android:name="assk.toothbrushgame.HighScoreActivity"
+                  android:screenOrientation="landscape"
+                  android:label="@string/app_name">
+        </activity>
+        <activity android:name="assk.toothbrushgame.VoCoGoActivity"
+                  android:screenOrientation="landscape"
+                  android:label="@string/app_name">
+        </activity>
+
+        <activity android:name="assk.toothbrushgame.MainMenuActivity"
+                  android:screenOrientation="landscape"
+                  android:label="Avoid the dirt"
+                  android:launchMode="singleTop">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
         </activity>
-
 
     </application>
 
