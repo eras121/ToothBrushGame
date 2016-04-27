@@ -31,7 +31,6 @@ public class ScoreTab {
         for (int i = 0; i < mScores.length; i++) {
             Score scoreOld = mScores[i];
             if ( (scoreOld == null) || (scoreOld.getScorePoints() <  score.getScorePoints())) {
-                //TODO posun ostatnych score
                 for (int j = mScores.length - 1; j > i ; j--){
                     mScores[j] = mScores[j-1];
                 }

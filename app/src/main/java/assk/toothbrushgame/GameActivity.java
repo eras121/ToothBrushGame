@@ -354,7 +354,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                             fallingObject.setVisibility(View.INVISIBLE);
                         }
 
-
                     } else if (y >= displayHeight) {
                         fallingObject.setIs_existing(false);
                         fallingObject.setVisibility(View.INVISIBLE);
@@ -397,11 +396,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             });
 
             builder.show();
-
         }
-
-
-
     }
 
 
