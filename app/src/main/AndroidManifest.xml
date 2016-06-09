@@ -16,12 +16,13 @@
                   android:label="@string/app_name">
         </activity>
         <activity android:name="assk.toothbrushgame.VoCoGoActivity"
+                  android:theme="@style/AppTheme.NoActionBar"
                   android:screenOrientation="landscape"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="assk.toothbrushgame.MainMenuActivity"
-                  android:screenOrientation="landscape"
+                  android:theme="@style/AppTheme.NoActionBar"
                   android:label="Avoid the dirt"
                   android:launchMode="singleTop">
         <intent-filter>

@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import assk.toothbrushgame.buttons.ParentButton;
+import assk.toothbrushgame.util.TypefaceUtil;
 
 /**
  * Created by Tomas Kacer on 14. 4. 2016.
@@ -24,6 +25,7 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
+        TypefaceUtil.overrideFont(getApplicationContext(), "SERIF", "font/SigmarOne.ttf");
         playButton = (ParentButton) findViewById(R.id.button_menu_play);
         voCoGoButton = (ParentButton) findViewById(R.id.button_vo_co_go);
         highScoreButton = (ParentButton) findViewById(R.id.button_high_score);

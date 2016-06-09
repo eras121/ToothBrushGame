@@ -32,7 +32,8 @@
         android:textColor="@color/colorFontBlue"
         android:background="@drawable/parent_button"
         android:layout_margin="@dimen/settings_buttons_margin"
-        android:onClick="jumpToGameActivity"/>
+        android:onClick="jumpToGameActivity"
+        android:layout_gravity="center"/>
 
     <assk.toothbrushgame.buttons.ParentButton
         style="@style/button"
